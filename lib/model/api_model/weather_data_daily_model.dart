@@ -10,7 +10,6 @@ class WeatherDataDailyModel {
 class Daily {
   int? dt;
   Temp? temp;
-
   List<Weather>? weather;
 
   Daily({

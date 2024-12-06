@@ -24,11 +24,7 @@ class DataController extends GetxController {
     return res.item1 == ErrorType.done;
   }
 
-  // Future<void> runApp() async {
-  //
-  //   await initApp();
-  //
-  // }
+
 
   Future<void> initApp() async {
 

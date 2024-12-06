@@ -2,37 +2,36 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:sm_technology/Services/user_message/devMode.dart';
-import 'package:sm_technology/controller/screenController/jsonPlacerListScreenController.dart';
 import 'package:sm_technology/view/screens/listViewPart/jsonPlacceListScreen.dart';
 import 'package:sm_technology/view/screens/weather_part/weather_screen.dart';
 
 import '../../Services/local_database/databaseHelper.dart';
-import '../../Services/user_message/snackbar.dart';
+
 import '../../component.dart';
 import '../../model/api_model/jsonPlacerListResponseModel.dart';
 import '../../model/api_model/weather_data_model.dart';
 import '../../model/app_model/page_model.dart';
 import '../dataController/dataController.dart';
+import 'jsonPlacerListScreenController.dart';
 
 class DashboardWrapperScreenController extends GetxController {
-  DataController controller=DataController();
+  DataController controller = DataController();//for main controller
+
+  JsonPlacerListScreenController jsonController =
+      Get.put(JsonPlacerListScreenController());//for Json controller listview
   @override
   void onInit() {
     // TODO: implement onInit
 
     super.onInit();
     controller.initApp();
-
     if (_isLoading.isTrue) {
+      jsonController.onInit();
       getLocation();
     } else {
       getIndex();
     }
-
   }
-
-
-
 
   // create various variables
   final RxBool _isLoading = true.obs;
@@ -48,16 +47,22 @@ class DashboardWrapperScreenController extends GetxController {
   //final weatherData = WeatherData().obs;
   final Rx<WeatherDataModel?> weatherData = Rx<WeatherDataModel?>(null);
 
-  Future<void> getData() async{
+  //get Weather data
+  Future<void> getData() async {
     DatabaseHelper dbHelper = DatabaseHelper();
-   weatherData.value=await controller.getWeatherData(_lattitude.value, _longitude.value);
-    _isLoading.value=false;
-    if (controller.isConnected.value) saveDataLocal();
+
+    if (controller.isConnected.value) {//jokhon internet connection thake
+      weatherData.value =
+          await controller.getWeatherData(_lattitude.value, _longitude.value);
+    } else {//jokhon internet connection thake nah
+      weatherData.value = await dbHelper.getWeatherData();
+    }
+
+    _isLoading.value = false;
+    if (controller.isConnected.value) saveDataLocal();//local a data save korar jonno
   }
 
-
-
-  Future<void> getLocation() async {
+  Future<void> getLocation() async {//location get korar jonno use kora hoise
     bool isServiceEnabled;
     LocationPermission locationPermission;
 
@@ -87,11 +92,9 @@ class DashboardWrapperScreenController extends GetxController {
     _longitude.value = position.longitude;
 
     // Fetch weather data after successfully getting location
-    if (position.latitude != 0.0 && position.longitude != 0.0)
-      {
-        await getData();
-      }
-
+    if (position.latitude != 0.0 && position.longitude != 0.0) {
+      await getData();//jokhon latitude and longitude 0.0 na hobe tokhon oi call korbe
+    }
   }
 
   RxInt getIndex() {
@@ -99,36 +102,21 @@ class DashboardWrapperScreenController extends GetxController {
   }
 
 
+  //SAVE DATA TO LOCAL DATABASE
   Future<void> saveDataLocal() async {
-    DevMode.devPrint("save data local called-----------------------------------------------------------------------------------------------------------------");
-    final List<JsonPlacerListModel>? jsonList =
-    await controller.getJsonPlacerList();
-
-    if (jsonList == null ||jsonList.isEmpty) {
-      DevMode.devPrint("No data found to save.");
-      return;
-    }
+    DevMode.devPrint(
+        "save data local called-----------------------------------------------------------------------------------------------------------------");
 
     DatabaseHelper dbHelper = DatabaseHelper();
 
-    int col = await dbHelper.deleteLocalData();
-    DevMode.devPrint("Delete ${col} of database successfylly");
-
-    for (JsonPlacerListModel jsonModel in jsonList) {
-      await dbHelper.insertJsonPlacerList(jsonModel);
-    }
-
-    DevMode.devPrint("Data saved to local database successfully.");
-
-    final WeatherDataModel jsonModel = await controller.getWeatherData(_lattitude.value, _longitude.value);
+    final WeatherDataModel jsonModel =
+        await controller.getWeatherData(_lattitude.value, _longitude.value);
 
     if (jsonModel == null) {
       DevMode.devPrint("No data found to save.");
       return;
     }
-
-
-
+dbHelper.deleteWeatherLocalData();
     // Insert the single weather data model into the local database
     await dbHelper.insertWeatherData(jsonModel);
 
@@ -137,11 +125,10 @@ class DashboardWrapperScreenController extends GetxController {
 
 
 
+
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   final ScrollController scrollController = ScrollController();
   final ScrollController calenderScroll = ScrollController();
-
-
 
   @override
   dispose() {
@@ -150,21 +137,31 @@ class DashboardWrapperScreenController extends GetxController {
     super.dispose();
   }
 
-
-
   final RxInt currentPageIndex = 1.obs;
   final PageController pageController = PageController(initialPage: 1);
 
   final List<PageModel> bottomNavBarList = [
-    PageModel(pageHeading: "ListView", svg: "assets/icons/listView.svg", page: JsonplacerListScreen()),
-    PageModel(pageHeading: "Home", svg: "assets/icons/home_icon.svg", page: WeatherScreen()),
-    PageModel(pageHeading: "ListView", svg: "assets/icons/listView.svg", page:  JsonplacerListScreen()),
+    PageModel(
+        pageHeading: "ListView",
+        svg: "assets/icons/listView.svg",
+        page: JsonplacerListScreen()),
+    PageModel(
+        pageHeading: "Home",
+        svg: "assets/icons/home_icon.svg",
+        page: WeatherScreen()),
+    PageModel(
+        pageHeading: "ListView",
+        svg: "assets/icons/listView.svg",
+        page: JsonplacerListScreen()),
   ];
 
   void changePage(int index) {
     currentPageIndex.value = index;
-
-    if (pageController.hasClients) pageController.animateToPage(index, duration: Duration(milliseconds: defaultDuration.inMilliseconds ~/ 3), curve: Curves.easeInOut);
+    if (index == 0 || index == 2) jsonController.getJsonDataList();
+    if (index == 1) getData();
+    if (pageController.hasClients)
+      pageController.animateToPage(index,
+          duration: Duration(milliseconds: defaultDuration.inMilliseconds ~/ 3),
+          curve: Curves.easeInOut);
   }
-
 }

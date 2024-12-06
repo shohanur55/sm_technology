@@ -7,7 +7,6 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/bindings_interface.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:sm_technology/view/dashboard_wrapper_screen.dart';
-import 'package:sm_technology/view/screens/weather_part/weather_screen.dart';
 
 import 'controller/dataController/dataController.dart';
 
@@ -22,7 +21,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ScreenUtilInit(
+    return ScreenUtilInit(//for resposnsive design
       fontSizeResolver: (fontSize, instance) => fontSize.toDouble(),
       designSize: Size(360, 800),
       minTextAdapt: true,
@@ -33,18 +32,17 @@ class MyApp extends StatelessWidget {
         initialBinding: InitialBinding(),
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          useMaterial3: true, // Enable Material Design 3
+          useMaterial3: true,
           primarySwatch: Colors.blue,
           brightness: Brightness.light,
         ),
-        scrollBehavior: const MaterialScrollBehavior().copyWith(dragDevices: {
+        scrollBehavior: const MaterialScrollBehavior().copyWith(dragDevices: {//for comfortable with mouse and touch
           PointerDeviceKind.mouse,
           PointerDeviceKind.touch,
         }),
         home: child,
       ),
       child:  DashboardWrapperScreen(),
-     // child:  JsonplacerListScreen(),
     );
   }
 }

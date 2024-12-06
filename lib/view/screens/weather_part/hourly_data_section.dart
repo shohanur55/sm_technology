@@ -79,7 +79,7 @@ class HourlyDataWidget extends StatelessWidget {
 
 // hourly details class
 class HourlyDetails extends StatelessWidget {
-  int temp;
+  double temp;
   int index;
   int cardIndex;
   int timeStamp;

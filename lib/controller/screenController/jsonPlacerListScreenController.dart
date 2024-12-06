@@ -31,9 +31,7 @@ class JsonPlacerListScreenController extends GetxController {
 
     if (controller.isConnected.value) {
       response.value = await controller.getJsonPlacerList();
-      // if(response.value==null || response.value!.isEmpty){
-      //   response.value=[];
-      // }
+      print("response =${response.value.toString()}");
     } else {
       response.value = await dbHelper.getJsonPlacerLocalDatabaseData();
     }
@@ -44,6 +42,7 @@ class JsonPlacerListScreenController extends GetxController {
     DevMode.devPrint("is have internet =   ${controller.isConnected.value}");
   }
 
+  //FOR SAVE DATA INTO LOCAL DATABASE---------------------------
   Future<void> saveDataLocal() async {
 
     final List<JsonPlacerListModel>? jsonList =

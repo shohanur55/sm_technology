@@ -18,15 +18,14 @@ class DashboardWrapperScreen extends StatefulWidget {
 }
 
 class _DashboardWrapperScreenState extends State<DashboardWrapperScreen> {
-  final DashboardWrapperScreenController _controller = Get.put(DashboardWrapperScreenController());
 
+   DashboardWrapperScreenController controller = Get.put(DashboardWrapperScreenController());
 
-
-
-  @override
-  void dispose() {
-    super.dispose();
-    Get.delete<DashboardWrapperScreenController>();
+@override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    controller.onInit();
   }
 
   @override
@@ -36,13 +35,13 @@ class _DashboardWrapperScreenState extends State<DashboardWrapperScreen> {
         onPopInvoked: (didPop) {
           if (didPop) return;
 
-          if (_controller.currentPageIndex.value == 1) SystemNavigator.pop();
+          if (controller.currentPageIndex.value == 1) SystemNavigator.pop();
 
-          _controller.changePage(1);
+          controller.changePage(1);
           return;
         },
         child: Scaffold(
-          key: _controller.scaffoldKey,
+          key: controller.scaffoldKey,
           extendBody: true,
           floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
           floatingActionButton: _HomeButton(),
@@ -53,16 +52,16 @@ class _DashboardWrapperScreenState extends State<DashboardWrapperScreen> {
               () => Column(
                 children: [
                  // CustomLinearProgressBar.small(show: _controller.isLoading.value),
-              if (_controller.weatherData.value== null)Text("No data available"),
+              if (controller.weatherData.value== null)Text("No data available"),
                   Expanded(
                     child: PageView.builder(
                       physics: const NeverScrollableScrollPhysics(),
-                      controller: _controller.pageController,
-                      itemCount: _controller.bottomNavBarList.length,
-                      onPageChanged: (value) => _controller.currentPageIndex.value = value,
+                      controller: controller.pageController,
+                      itemCount: controller.bottomNavBarList.length,
+                      onPageChanged: (value) => controller.currentPageIndex.value = value,
                       itemBuilder: (context, index) {
                         return CustomAlive(
-                          child: _controller.bottomNavBarList.elementAt(index).page,
+                          child: controller.bottomNavBarList.elementAt(index).page,
                         );
                       },
                     ),

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
-
 import '../../../component.dart';
 import '../../../controller/screenController/dashboard_wrapper_screen_controller.dart';
 import 'comfort_level_section.dart';

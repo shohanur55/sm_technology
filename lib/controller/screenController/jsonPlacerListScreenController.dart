@@ -18,6 +18,7 @@ class JsonPlacerListScreenController extends GetxController {
 
   }
 
+  final RxBool isFirst=true.obs;
   DatabaseHelper dbHelper = DatabaseHelper();
 
   final Rxn<List<JsonPlacerListModel>> response =
@@ -38,13 +39,14 @@ class JsonPlacerListScreenController extends GetxController {
 
     isLoading.value = false;
 
-    if (controller.isConnected.value) saveDataLocal();
+    if (controller.isConnected.value  && isFirst.value) saveDataLocal();
+
     DevMode.devPrint("is have internet =   ${controller.isConnected.value}");
   }
 
   //FOR SAVE DATA INTO LOCAL DATABASE---------------------------
   Future<void> saveDataLocal() async {
-
+    DevMode.devPrint("Json data list view are local are called----------------------------------------------------.");
     final List<JsonPlacerListModel>? jsonList =
         await controller.getJsonPlacerList();
 
@@ -61,7 +63,7 @@ class JsonPlacerListScreenController extends GetxController {
     for (JsonPlacerListModel jsonModel in jsonList) {
       await dbHelper.insertJsonPlacerList(jsonModel);
     }
-
-    DevMode.devPrint("Data saved to local database successfully.");
+    isFirst.value=false;
+    DevMode.devPrint("Json data list view are  saved to local database successfully-----------------------------------------------.");
   }
 }

@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS WeatherDataCurrent(
     CREATE TABLE WeatherDataHourly (
         id INTEGER PRIMARY KEY AUTOINCREMENT, -- Unique identifier for each record
         dt INTEGER,                          -- Unix timestamp
-        temp REAL                         -- Temperature (rounded)
+        temp INTEGER                         -- Temperature (rounded)
     );
 ''');
     await db.execute('''
@@ -197,6 +197,7 @@ CREATE TABLE WeatherDataDaily(
         await db.insert(
           'Tempdaily',
           {
+            'daily_dt':weatherDataDailyId,
             'day': dailyData.temp!.day,
             'min': dailyData.temp!.min,
             'max': dailyData.temp!.max,
@@ -285,7 +286,7 @@ CREATE TABLE WeatherDataDaily(
       // Create `Hourly` objects and add them to the list
       hourlyList.add(Hourly(
         dt: hourlyData['dt'] as int,
-        temp: hourlyData['temp'] as double,
+        temp: hourlyData['temp'] as int,
         weather: weatherList,
       ));
     }

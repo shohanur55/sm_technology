@@ -33,6 +33,7 @@ class DashboardWrapperScreenController extends GetxController {
     }
   }
 
+final RxBool isFirst=true.obs;
   // create various variables
   final RxBool _isLoading = true.obs;
   final RxDouble _lattitude = 0.0.obs;
@@ -59,7 +60,7 @@ class DashboardWrapperScreenController extends GetxController {
     }
 
     _isLoading.value = false;
-    if (controller.isConnected.value) saveDataLocal();//local a data save korar jonno
+
   }
 
   Future<void> getLocation() async {//location get korar jonno use kora hoise
@@ -94,7 +95,9 @@ class DashboardWrapperScreenController extends GetxController {
     // Fetch weather data after successfully getting location
     if (position.latitude != 0.0 && position.longitude != 0.0) {
       await getData();//jokhon latitude and longitude 0.0 na hobe tokhon oi call korbe
+      if (controller.isConnected.value && isFirst.value) saveDataLocal();//local a data save korar jonno
     }
+
   }
 
   RxInt getIndex() {
@@ -116,11 +119,12 @@ class DashboardWrapperScreenController extends GetxController {
       DevMode.devPrint("No data found to save.");
       return;
     }
-dbHelper.deleteWeatherLocalData();
+await dbHelper.deleteWeatherLocalData();
     // Insert the single weather data model into the local database
     await dbHelper.insertWeatherData(jsonModel);
 
     DevMode.devPrint("Data saved to local database successfully.");
+    isFirst.value=false;
   }
 
 
